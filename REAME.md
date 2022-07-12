@@ -1,0 +1,18 @@
+## torianik-music-etl
+
+### Deploy
+1. Create a file with variables finising on `.tfvars`:
+```tfstate
+account_id=<your aws account id>
+project_name=<name of your porject>
+```
+2. Configure AWS client with region and creds:
+```bash
+$ export AWS_PROFILE=<my-aws-profile>
+$ export AWS_REGION=<my-region>
+```
+3. Init and apply changes with terraform:
+```bash
+$ terraform init -var-file .tfvars
+$ terraform apply -var-file .tfvars
+```
