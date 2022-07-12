@@ -1,12 +1,15 @@
 ## torianik-music-etl
 
 ### Abstract
+
 [Dataset](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge)
+
 C.W. Chen, P. Lamere, M. Schedl, and H. Zamani. Recsys Challenge 2018: Automatic Music Playlist Continuation. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys ’18), 2018.
 
 ### Deploy
+
 1. Create `.tfvars`:
-```tfstate
+```
 account_id=<your aws account id>
 project_name=<name of your porject>
 subnet_id=<subnet with NAT>
