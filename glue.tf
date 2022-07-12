@@ -43,3 +43,12 @@ resource "aws_glue_connection" "primary" {
     ]
   }
 }
+
+resource "aws_glue_job" "primary" {
+  name     = "${var.project_name}-${var.stage}-etl-job"
+  role_arn = aws_iam_role.glue.arn
+
+  command {
+    script_location = "s3://${aws_s3_bucket.sources.bucket}/${local.etl_job_s3_key}"
+  }
+}

@@ -20,11 +20,16 @@ resource "aws_s3_bucket_public_access_block" "sources" {
   block_public_policy = true
 }
 
+locals {
+  etl_job_s3_key = "etl_job.py"
+}
+
+
 resource "aws_s3_object" "etl_job" {
   bucket = aws_s3_bucket.sources.id
 
-  key    = "etl_job.py"
+  key    = local.etl_job_s3_key
   source = "resources/etl_job.py"
 
-  etag = "${md5(file("resources/etl_job.py"))}"  # terraform<=0.11.11 legacy
+  etag = md5(file("resources/etl_job.py")) # terraform<=0.11.11 legacy
 }
