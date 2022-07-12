@@ -37,7 +37,7 @@ resource "aws_glue_connection" "primary" {
     subnet_id = data.aws_subnet.primary.id
 
     availability_zone = data.aws_subnet.primary.availability_zone
-    
+
     security_group_id_list = [
       var.security_group_id
     ]
