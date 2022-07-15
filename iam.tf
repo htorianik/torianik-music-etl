@@ -42,7 +42,7 @@ resource "aws_iam_role_policy" "data_lake" {
         ]
         Effect = "Allow"
         Resource = [
-          "arn:aws:ssm:us-east-1:${var.account_id}:parameters/${local.ssm_prefix}*",
+          "arn:aws:ssm:us-east-1:${var.account_id}:parameters${local.ssm_prefix}*",
         ]
       },
     ]
