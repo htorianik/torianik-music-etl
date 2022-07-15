@@ -1,5 +1,8 @@
 import sys
+import logging
+from typing import Union, List
 
+import boto3
 from pyspark.sql import DataFrame
 from pyspark.context import SparkContext
 from pyspark.sql.functions import explode
@@ -9,8 +12,23 @@ from awsglue.job import Job
 from awsglue.utils import getResolvedOptions
 
 
-def get_ssm_value(ssm_client, name: str) -> str:
-    pass
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+GLUE_CONNECTION_NAME_SSM = "torianik-music/dev/glue_connection_name"
+CATALOG_DATABASE_NAME_SSM = "torianik-music/dev/catalog_database_name"
+DATABASE_NAME_SSM = "torianik-music/dev/database_name"
+CATALOG_TABLE_NAME = "set-up-me"
+
+
+def get_ssm_value(ssm_client, name: str) -> Union[str, List[str]]:
+    resp = ssm_client.get_parameter(Name=name)
+    param = resp["Parameter"]
+    if not param["Type"] in ["String", "StringList"]:
+        raise NotImplementedError("Only String and StringList param types are supported.")
+    
+    return param["Value"]
 
 
 class GluePythonSampleTest:
@@ -31,29 +49,47 @@ class GluePythonSampleTest:
             jobname = "test"
         self.job.init(jobname, args)
 
-    def _show_df(self, name: str, df):
-        print("Dataset", name)
-        df.printSchema()
-        df.show(3)
+        ssm_client = boto3.client("ssm")
 
+        self.catalog_database_name = get_ssm_value(
+            ssm_client,
+            CATALOG_DATABASE_NAME_SSM, 
+        )
+
+        self.glue_connection_name = get_ssm_value(
+            ssm_client,
+            GLUE_CONNECTION_NAME_SSM,
+        )
+
+        self.database_name = get_ssm_value(
+            ssm_client,
+            DATABASE_NAME_SSM,
+        )
+
+        self.catalog_table_name = CATALOG_TABLE_NAME
+
+        logger.info("Catalog Database: %s", self.catalog_database_name)
+        logger.info("Catalog Table: %s", self.catalog_table_name)
+        logger.info("Glue Connection: %s", self.glue_connection_name)
+        logger.info("Dedicated Databse: %s", self.database_name)
 
     def extract(self):
         return self.context.create_dynamic_frame.from_catalog(
-            database="spotify_playlists",
-            table_name="mini_mini",
+            database=self.catalog_database_name,
+            table_name=self.catalog_table_name,
         )
 
-    def load(self, table_name: str, df):
+    def load(self, table_name: str, df: DataFrame):
         dyf = DynamicFrame.fromDF(df, self.context, table_name)
 
         connection_postgres_options = {
-            "database": "postgres",
+            "database": self.database_name,
             "dbtable": table_name,
         }
 
         self.context.write_dynamic_frame_from_jdbc_conf(
             frame=dyf,
-            catalog_connection="rds-test-postgresql",
+            catalog_connection=self.glue_connection_name,
             connection_options=connection_postgres_options,
         )
 
