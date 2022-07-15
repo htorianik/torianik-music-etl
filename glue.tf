@@ -57,4 +57,9 @@ resource "aws_glue_job" "primary" {
   command {
     script_location = "s3://${aws_s3_bucket.sources.bucket}/${local.etl_job_s3_key}"
   }
+
+  default_arguments = {
+    "--job-language" = "python"
+    "--additional-python-modules" = "boto3==1.12.4"
+  }
 }
