@@ -1,9 +1,7 @@
 import sys
 import logging
-from typing import Union, List
 
 import boto3
-from pyspark.sql import DataFrame
 from pyspark.context import SparkContext
 from pyspark.sql.functions import explode
 from awsglue.context import GlueContext
@@ -22,7 +20,7 @@ DATABASE_NAME_SSM = "/torianik-music/dev/database_name"
 CATALOG_TABLE_NAME = "set-up-me"
 
 
-def get_ssm_value(ssm_client, name: str) -> Union[str, List[str]]:
+def get_ssm_value(ssm_client, name):
     resp = ssm_client.get_parameter(Name=name)
     param = resp["Parameter"]
     if not param["Type"] in ["String", "StringList"]:
@@ -79,7 +77,7 @@ class GluePythonSampleTest:
             table_name=self.catalog_table_name,
         )
 
-    def load(self, table_name: str, df: DataFrame):
+    def load(self, table_name, df):
         dyf = DynamicFrame.fromDF(df, self.context, table_name)
 
         connection_postgres_options = {
