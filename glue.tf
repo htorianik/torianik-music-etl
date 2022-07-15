@@ -1,5 +1,10 @@
+locals {
+  catalog_database_name = "${var.project_name}-${var.stage}-database"
+  glue_connection_name = "${var.project_name}-${var.stage}-postgres-connection"
+}
+
 resource "aws_glue_catalog_database" "primary" {
-  name = "${var.project_name}-${var.stage}-database"
+  name = local.catalog_database_name
 }
 
 resource "aws_glue_classifier" "spotify_playlists_json" {
@@ -25,7 +30,7 @@ resource "aws_glue_crawler" "primary" {
 }
 
 resource "aws_glue_connection" "primary" {
-  name = "${var.project_name}-${var.stage}-postgres-connection"
+  name = local.glue_connection_name
 
   connection_properties = {
     JDBC_CONNECTION_URL = "jdbc:postgresql://${aws_db_instance.primary.endpoint}/${var.db_name}"
