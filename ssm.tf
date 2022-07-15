@@ -1,5 +1,5 @@
 locals {
-    ssm_prefix = "${var.project_name}/${var.stage}/"
+    ssm_prefix = "/${var.project_name}/${var.stage}/"
 }
 
 resource "aws_ssm_parameter" "glue_connection_name" {

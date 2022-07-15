@@ -32,6 +32,17 @@ resource "aws_iam_role_policy" "data_lake" {
         Resource = [
           "arn:aws:s3:::${aws_s3_bucket.data_lake.id}",
           "arn:aws:s3:::${aws_s3_bucket.data_lake.id}/*",
+          "arn:aws:s3:::${aws_s3_bucket.sources.id}",
+          "arn:aws:s3:::${aws_s3_bucket.sources.id}/*",
+        ]
+      },
+      {
+        Action = [
+          "ssm:GetParameter",
+        ]
+        Effect = "Allow"
+        Resource = [
+          "arn:aws:ssm:us-east-1:${var.account_id}:parameters/${local.ssm_prefix}*",
         ]
       },
     ]

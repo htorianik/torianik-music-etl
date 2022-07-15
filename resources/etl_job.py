@@ -16,9 +16,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-GLUE_CONNECTION_NAME_SSM = "torianik-music/dev/glue_connection_name"
-CATALOG_DATABASE_NAME_SSM = "torianik-music/dev/catalog_database_name"
-DATABASE_NAME_SSM = "torianik-music/dev/database_name"
+GLUE_CONNECTION_NAME_SSM = "/torianik-music/dev/glue_connection_name"
+CATALOG_DATABASE_NAME_SSM = "/torianik-music/dev/catalog_database_name"
+DATABASE_NAME_SSM = "/torianik-music/dev/database_name"
 CATALOG_TABLE_NAME = "set-up-me"
 
 
