@@ -2,9 +2,6 @@
 Glue PySpark script for ETL-job to load 
 1m spotify playlists from Glue Catalog to RDS.
 
-You should manually set the `CATALOG_TABLE` constant with
-the Catalog table you want to fetch data from.
-
 :author: Heorhii Torianyk <deadstonepro@gmail.com>
 """
 
@@ -36,7 +33,6 @@ CATALOG_DATABASE_SSM = SSMParameter(f"{SSM_PREFIX}catalog_database")
 SOURCES_BUCKET_SSM = SSMParameter(f"{SSM_PREFIX}sources_bucket")
 
 DATABASE_PORT = 5432
-CATALOG_TABLE = "759551559257_torianik_music_dev_data_lake"
 CREATE_TABLES_SQL_KEY = "create_tables.sql"
 
 
@@ -50,11 +46,13 @@ class TorianikMusicETL:
     """
 
     def __init__(self):
-        params = []
+        params = ["catalog_table"]
         if "--JOB_NAME" in sys.argv:
             params.append("JOB_NAME")
+
         args = getResolvedOptions(sys.argv, params)
 
+        self.catalog_table = args["catalog_table"]
         self.spark_context = SparkContext.getOrCreate()
         self.spark_context.setLogLevel("ERROR")
         self.glue_context = GlueContext(self.spark_context)
@@ -124,7 +122,7 @@ class TorianikMusicETL:
         """
         return self.glue_context.create_dynamic_frame.from_catalog(
             database=CATALOG_DATABASE_SSM.value,
-            table_name=CATALOG_TABLE,
+            table_name=self.catalog_table,
         ).toDF()
 
     def load(self, dfs):

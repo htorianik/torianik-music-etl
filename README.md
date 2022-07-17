@@ -27,6 +27,20 @@ $ terraform init -var-file .tfvars
 $ terraform apply -var-file .tfvars
 ```
 
+### Execution
+*Not tested, used UI insted*
+```
+$ ./utils/unpack \
+    --prefix /raw \
+    --input local/path/to/archive \
+    --bucket your-account-id-torianik-music-dev-data-lake
+$ aws glue start-crawler --name torianik-music-dev-crawler  # wait until crawler finishes
+$ aws glue get-tables --database-name torianik-music-dev-database  # find out name of the created table 
+$ aws glue start-job-run \
+    --job-name torianik-music-dev-etl-job \
+    --arguments catalog_table=<table-from-the-previous-command-here>  # start the etl job
+```
+
 ### Development
 ```bash
 cd dev

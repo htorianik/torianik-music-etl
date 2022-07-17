@@ -13,4 +13,4 @@ docker run -it \
     --rm \
     --network host \
     --name glue_spark_submit \
-    htorianik-music-glue-env spark-submit /home/glue_user/workspace/$SCRIPT_FILE_NAME
+    htorianik-music-glue-env spark-submit /home/glue_user/workspace/$SCRIPT_FILE_NAME --catalog_table=759551559257_torianik_music_dev_data_lake
