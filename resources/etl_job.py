@@ -1,7 +1,21 @@
+"""
+Glue PySpark script for ETL-job to load 
+1m spotify playlists from Glue Catalog to RDS.
+
+You should manually set the `CATALOG_TABLE` constant with
+the Catalog table you want to fetch data from.
+
+:author: Heorhii Torianyk <deadstonepro@gmail.com>
+"""
+
+import io
 import sys
 import logging
+from contextlib import contextmanager
 
 import boto3
+import psycopg2
+from ssm_cache import SSMParameter
 from pyspark.context import SparkContext
 from pyspark.sql.functions import explode
 from awsglue.context import GlueContext
@@ -13,94 +27,150 @@ from awsglue.utils import getResolvedOptions
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+SSM_PREFIX = "/torianik-music/dev/"
+DATABASE_HOST_SSM = SSMParameter(f"{SSM_PREFIX}database_host")
+DATABASE_NAME_SSM = SSMParameter(f"{SSM_PREFIX}database_name")
+DATABASE_USER_SSM = SSMParameter(f"{SSM_PREFIX}database_user")
+DATABASE_PASSWORD_SSM = SSMParameter(f"{SSM_PREFIX}database_password")
+CATALOG_DATABASE_SSM = SSMParameter(f"{SSM_PREFIX}catalog_database")
+SOURCES_BUCKET_SSM = SSMParameter(f"{SSM_PREFIX}sources_bucket")
 
-GLUE_CONNECTION_NAME_SSM = "/torianik-music/dev/glue_connection_name"
-CATALOG_DATABASE_NAME_SSM = "/torianik-music/dev/catalog_database_name"
-DATABASE_NAME_SSM = "/torianik-music/dev/database_name"
-CATALOG_TABLE_NAME = "set-up-me"
-
-
-def get_ssm_value(ssm_client, name):
-    resp = ssm_client.get_parameter(Name=name)
-    param = resp["Parameter"]
-    if not param["Type"] in ["String", "StringList"]:
-        raise NotImplementedError("Only String and StringList param types are supported.")
-    
-    return param["Value"]
+DATABASE_PORT = 5432
+CATALOG_TABLE = "759551559257_torianik_music_dev_data_lake"
+CREATE_TABLES_SQL_KEY = "create_tables.sql"
 
 
-class GluePythonSampleTest:
+logger.info("Sources bucket: %s", SOURCES_BUCKET_SSM.value)
+
+
+class TorianikMusicETL:
+    """
+    Class to manage the ETL job execution.
+    Entry point is TorianikMusicETL.run().
+    """
+
     def __init__(self):
         params = []
-        if '--JOB_NAME' in sys.argv:
-            params.append('JOB_NAME')
+        if "--JOB_NAME" in sys.argv:
+            params.append("JOB_NAME")
         args = getResolvedOptions(sys.argv, params)
 
         self.spark_context = SparkContext.getOrCreate()
         self.spark_context.setLogLevel("ERROR")
-        self.context = GlueContext(self.spark_context)
-        self.job = Job(self.context)
+        self.glue_context = GlueContext(self.spark_context)
+        self.job = Job(self.glue_context)
 
-        if 'JOB_NAME' in args:
-            jobname = args['JOB_NAME']
+        if "JOB_NAME" in args:
+            jobname = args["JOB_NAME"]
         else:
             jobname = "test"
         self.job.init(jobname, args)
 
-        ssm_client = boto3.client("ssm")
-
-        self.catalog_database_name = get_ssm_value(
-            ssm_client,
-            CATALOG_DATABASE_NAME_SSM, 
+    def load_source_from_s3(self, path):
+        """
+        Retrieve a file from s3 bucket of sources.
+        :param path: Key of the s3 object.
+        :type path: str
+        :return: String with content of a file.
+        :rtype: str
+        """
+        s3 = boto3.client("s3")
+        fileobj = io.BytesIO()
+        s3.download_fileobj(
+            SOURCES_BUCKET_SSM.value,
+            path,
+            fileobj,
         )
+        fileobj.flush()
+        fileobj.seek(0)
+        return fileobj.read().decode("utf-8")
 
-        self.glue_connection_name = get_ssm_value(
-            ssm_client,
-            GLUE_CONNECTION_NAME_SSM,
-        )
+    @contextmanager
+    def postgresql_cursor(self):
+        """
+        Context manager to create and ensure the closure
+        of the postgresql connection to a target database.
+        Yield the cursor.
+        """
+        params = {
+            "dbname": DATABASE_NAME_SSM.value,
+            "user": DATABASE_USER_SSM.value,
+            "password": DATABASE_PASSWORD_SSM.value,
+            "host": DATABASE_HOST_SSM.value,
+            "port": DATABASE_PORT,
+        }
+        conn = psycopg2.connect(**params)
+        try:
+            with conn:
+                with conn.cursor() as curs:
+                    yield curs
+        except:
+            conn.close()
+            raise
 
-        self.database_name = get_ssm_value(
-            ssm_client,
-            DATABASE_NAME_SSM,
-        )
-
-        self.catalog_table_name = CATALOG_TABLE_NAME
-
-        logger.info("Catalog Database: %s", self.catalog_database_name)
-        logger.info("Catalog Table: %s", self.catalog_table_name)
-        logger.info("Glue Connection: %s", self.glue_connection_name)
-        logger.info("Dedicated Databse: %s", self.database_name)
+    def pre_load(self):
+        """
+        Actions to perform the before data loading.
+        """
+        query = self.load_source_from_s3(CREATE_TABLES_SQL_KEY)
+        with self.postgresql_cursor() as cursor:
+            cursor.execute(query)
 
     def extract(self):
-        return self.context.create_dynamic_frame.from_catalog(
-            database=self.catalog_database_name,
-            table_name=self.catalog_table_name,
-        )
+        """
+        Loads dynamic frame from Catalog, converts it to a data frame.
+        :return: DataFrame created from Glue Catalog table.
+        :rtype: pyspark.datagrame.DataFrame
+        """
+        return self.glue_context.create_dynamic_frame.from_catalog(
+            database=CATALOG_DATABASE_SSM.value,
+            table_name=CATALOG_TABLE,
+        ).toDF()
 
-    def load(self, table_name, df):
-        dyf = DynamicFrame.fromDF(df, self.context, table_name)
+    def load(self, dfs):
+        """
+        Loads data frames into RDS database.
+        :param dfs: Tuple of data frames that represents artists, tracks, playlists, edges
+        :type dfs: (pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame)
+        """
+        (artists_df, tracks_df, plyalists_df, edges_df) = dfs
+        self.load_df_as_table("artists", artists_df)
+        self.load_df_as_table("tracks", tracks_df)
+        self.load_df_as_table("playlists", plyalists_df)
+        self.load_df_as_table("edges", edges_df)
 
+    def load_df_as_table(self, table_name, df):
+        """
+        Loads data frame into RDS database's table.
+        :param table_name: Name of table to load data into.
+        :type table_name: str
+        :param df: Data frame to upload.
+        :type df: pyspark.dataframe.DataFrame
+        """
+        dyf = DynamicFrame.fromDF(df, self.glue_context, table_name)
+        jdbc_url = f"jdbc:postgresql://{DATABASE_HOST_SSM.value}:5432/{DATABASE_NAME_SSM.value}"
         connection_postgres_options = {
-            "database": self.database_name,
+            "url": jdbc_url,
+            "user": "postgres",
+            "password": DATABASE_PASSWORD_SSM.value,
             "dbtable": table_name,
         }
-
-        self.context.write_dynamic_frame_from_jdbc_conf(
-            frame=dyf,
-            catalog_connection=self.glue_connection_name,
+        self.glue_context.write_from_options(
+            dyf,
+            connection_type="postgresql",
             connection_options=connection_postgres_options,
         )
+        logger.info("DataFrame is loaded as %s.%s", DATABASE_NAME_SSM.value, table_name)
 
-    def run(self):
-        dyf = self.extract()
-        dyf.printSchema()
-
-        df = dyf.toDF()
-        df1 = df.select(
-            df["pid"],
-            df["name"],
-            explode(df["tracks"]).alias("track")
-        )
+    def transform(self, df):
+        """
+        Transforms the input df into 4 df: artists, tracks, playlists, edges.
+        :param df: Input dataframe with schema of the source datacet (See README).
+        :type df: class: pyspark.dataframe.DataFrame
+        :return: Tuple of 4 dataframes (artists, tracks, playlists, edges).
+        :rtype: (pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame, pyspark.dataframe.DataFrame)
+        """
+        df1 = df.select(df["pid"], df["name"], explode(df["tracks"]).alias("track"))
 
         tracks = df1.select(
             df1["track"]["track_uri"].alias("id"),
@@ -123,13 +193,15 @@ class GluePythonSampleTest:
             df1["track"]["track_uri"].alias("track_id"),
         ).distinct()
 
-        self.load("artists", artists)
-        self.load("tracks", tracks)
-        self.load("playlists", playlists)
-        self.load("edges", edges)
+        return artists, tracks, playlists, edges
 
+    def run(self):
+        input_df = self.extract()
+        output_dfs = self.transform(input_df)
+        self.pre_load()
+        self.load(output_dfs)
         self.job.commit()
 
 
-if __name__ == '__main__':
-    GluePythonSampleTest().run()
+if __name__ == "__main__":
+    TorianikMusicETL().run()

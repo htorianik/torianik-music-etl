@@ -2,14 +2,19 @@
 -- Generated 2022-07-12
 -- SQLAlchemy 1.4.39
 
+DROP TABLE IF EXISTS edges ;
+
+DROP TABLE IF EXISTS playlists ;
+
+DROP TABLE IF EXISTS tracks ;
+
+DROP TABLE IF EXISTS artists ;
+
 CREATE TABLE IF NOT EXISTS artists (
 	id VARCHAR NOT NULL, 
 	name VARCHAR NOT NULL, 
 	PRIMARY KEY (id)
-)
-
-
-;
+) ;
 
 CREATE TABLE IF NOT EXISTS tracks (
 	id VARCHAR NOT NULL, 
@@ -17,19 +22,13 @@ CREATE TABLE IF NOT EXISTS tracks (
 	artist_id VARCHAR NOT NULL, 
 	PRIMARY KEY (id), 
 	FOREIGN KEY(artist_id) REFERENCES artists (id)
-)
-
-
-;
+) ;
 
 CREATE TABLE IF NOT EXISTS playlists (
 	id SERIAL NOT NULL, 
 	name VARCHAR NOT NULL, 
 	PRIMARY KEY (id)
-)
-
-
-;
+) ;
 
 CREATE TABLE IF NOT EXISTS edges (
 	track_id VARCHAR NOT NULL, 
@@ -37,7 +36,4 @@ CREATE TABLE IF NOT EXISTS edges (
 	PRIMARY KEY (track_id, playlist_id), 
 	FOREIGN KEY(track_id) REFERENCES tracks (id), 
 	FOREIGN KEY(playlist_id) REFERENCES playlists (id)
-)
-
-
-;
+) ;

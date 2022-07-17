@@ -25,21 +25,3 @@ resource "aws_db_instance" "primary" {
     var.security_group_id
   ]
 }
-
-resource "null_resource" "db_setup" {
-
-  depends_on = [aws_db_instance.primary]
-
-  provisioner "local-exec" {
-    command = <<EOT
-        psql \
-            --host=${aws_db_instance.primary.address} \
-            --port=${aws_db_instance.primary.port} \
-            --user=${var.db_user} \
-            --file=resources/schema.sql
-        EOT
-    environment = {
-      PGPASSWORD = var.db_password
-    }
-  }
-}

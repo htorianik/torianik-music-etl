@@ -29,26 +29,6 @@ resource "aws_glue_crawler" "primary" {
   ]
 }
 
-resource "aws_glue_connection" "primary" {
-  name = local.glue_connection_name
-
-  connection_properties = {
-    JDBC_CONNECTION_URL = "jdbc:postgresql://${aws_db_instance.primary.endpoint}/${var.db_name}"
-    USERNAME            = var.db_user
-    PASSWORD            = var.db_password
-  }
-
-  physical_connection_requirements {
-    subnet_id = data.aws_subnet.primary.id
-
-    availability_zone = data.aws_subnet.primary.availability_zone
-
-    security_group_id_list = [
-      var.security_group_id
-    ]
-  }
-}
-
 resource "aws_glue_job" "primary" {
   name         = "${var.project_name}-${var.stage}-etl-job"
   role_arn     = aws_iam_role.glue.arn
@@ -61,6 +41,6 @@ resource "aws_glue_job" "primary" {
 
   default_arguments = {
     "--job-language" = "python"
-    "--additional-python-modules" = "boto3"
+    "--additional-python-modules" = "boto3==1.24.19,ssm-cache==2.10"
   }
 }

@@ -26,3 +26,10 @@ $ export AWS_REGION=<my-region>
 $ terraform init -var-file .tfvars
 $ terraform apply -var-file .tfvars
 ```
+
+### Development
+```bash
+cd dev
+./build_image.sh
+./run.sh
+```
