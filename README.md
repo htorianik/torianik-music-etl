@@ -29,11 +29,12 @@ $ terraform apply -var-file .tfvars
 
 ### Execution
 *Not tested, used UI insted*
+*Naming is correct only if you did not override default variables.*
 ```
 $ ./utils/unpack \
     --prefix /raw \
-    --input local/path/to/archive \
-    --bucket your-account-id-torianik-music-dev-data-lake
+    --input <local/path/to/archive> \
+    --bucket <your-account-id>-torianik-music-dev-data-lake
 $ aws glue start-crawler --name torianik-music-dev-crawler  # wait until crawler finishes
 $ aws glue get-tables --database-name torianik-music-dev-database  # find out name of the created table 
 $ aws glue start-job-run \
