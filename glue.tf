@@ -39,8 +39,8 @@ resource "aws_glue_job" "primary" {
     python_version = 3
   }
 
-  default_arguments = {
+  non_overridable_arguments = {
     "--job-language" = "python"
-    "--additional-python-modules" = "boto3==1.24.19,ssm-cache==2.10"
+    "--additional-python-modules" = "boto3==1.24.19,ssm-cache==2.10,psycopg2-binary==2.9.3"
   }
 }

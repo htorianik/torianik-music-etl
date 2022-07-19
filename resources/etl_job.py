@@ -48,13 +48,13 @@ class TorianikMusicETL:
     """
 
     def __init__(self):
-        params = ["catalog_table"]
+        params = ["catalogTable"]
         if "--JOB_NAME" in sys.argv:
             params.append("JOB_NAME")
 
         args = getResolvedOptions(sys.argv, params)
 
-        self.catalog_table = args["catalog_table"]
+        self.catalog_table = args["catalogTable"]
         self.spark_context = SparkContext.getOrCreate()
         self.spark_context.setLogLevel("ERROR")
         self.glue_context = GlueContext(self.spark_context)

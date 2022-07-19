@@ -47,10 +47,10 @@ $ ./utils/unpack \
     --input <local/path/to/archive> \
     --bucket <your-account-id>-torianik-music-dev-data-lake
 $ aws glue start-crawler --name torianik-music-dev-crawler  # wait until crawler finishes
-$ aws glue get-tables --database-name torianik-music-dev-database  # find out name of the created table 
+$ aws glue get-tables --database-name torianik-music-dev-database --query "TableList[*].Name" --output text
 $ aws glue start-job-run \
-    --job-name torianik-music-dev-etl-job \
-    --arguments catalog_table=<table-from-the-previous-command-here>  # start the etl job
+    --job-name=torianik-music-dev-etl-job \
+    --arguments='--catalogTable=759551559257_torianik_music_dev_data_lake'
 ```
 
 ### Development
@@ -59,3 +59,8 @@ cd dev
 ./build_image.sh
 ./run.sh
 ```
+
+### TODO
+* Enhance the developemnt flow. Add role assumption in the glue container.
+* Sync requirements between terraform and requirements.txt file.
+* Make the diagram prettier.

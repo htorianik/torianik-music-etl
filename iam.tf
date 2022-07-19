@@ -39,6 +39,7 @@ resource "aws_iam_role_policy" "data_lake" {
       {
         Action = [
           "ssm:GetParameter",
+          "ssm:GetParameters",
         ]
         Effect = "Allow"
         Resource = [
