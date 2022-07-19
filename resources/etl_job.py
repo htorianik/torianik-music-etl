@@ -3,6 +3,8 @@ Glue PySpark script for ETL-job to load
 1m spotify playlists from Glue Catalog to RDS.
 
 :author: Heorhii Torianyk <deadstonepro@gmail.com>
+
+Script version: 0.1.0
 """
 
 import io
