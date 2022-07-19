@@ -4,7 +4,7 @@ Glue PySpark script for ETL-job to load
 
 :author: Heorhii Torianyk <deadstonepro@gmail.com>
 
-Script version: 0.1.0
+Script version: 0.1.1
 """
 
 import io
@@ -63,7 +63,7 @@ class TorianikMusicETL:
         if "JOB_NAME" in args:
             jobname = args["JOB_NAME"]
         else:
-            jobname = "test"
+            jobname = "torianik-music-etl-job-run"
         self.job.init(jobname, args)
 
     def load_source_from_s3(self, path):
