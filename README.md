@@ -48,14 +48,20 @@ $ ./utils/unpack \
     --prefix /raw \
     --input <local/path/to/archive> \
     --bucket <your-account-id>-torianik-music-dev-data-lake
-$ aws glue start-crawler --name torianik-music-dev-crawler  # wait until crawler finishes
+$ # Start a crawler
+$ aws glue start-crawler --name torianik-music-dev-crawler
+$ # Wait unitl crawler state is READY
+$ aws glue get-crawler --name torianik-music-dev-crawler --query "Crawler.State" --output text
+$ # Retrieve a name of the catalog table created
 $ aws glue get-tables --database-name torianik-music-dev-database --query "TableList[*].Name" --output text
+$ # Start a job
 $ aws glue start-job-run \
     --job-name=torianik-music-dev-etl-job \
-    --arguments='--catalogTable=759551559257_torianik_music_dev_data_lake'
+    --arguments='--catalogTable=<table you received from the previous command>'
 ```
 
 ### Development
+First thing first, follow [Deploy](#Deploy) section.
 ```bash
 cd dev
 ./build_image.sh
