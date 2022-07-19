@@ -5,6 +5,8 @@
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
+AWS Glue PySpark ETL pipeline fully managed by terraform. Converst JSON dataset to SQL database hosted on RDS instance.
+
 ### Dataset
 
 [Dataset](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge)
@@ -64,3 +66,4 @@ cd dev
 * Enhance the developemnt flow. Add role assumption in the glue container.
 * Sync requirements between terraform and requirements.txt file.
 * Make the diagram prettier.
+* Currently us-east-1 region is hardcoded. Change it.
