@@ -2,9 +2,16 @@
 
 ### Abstract
 
+
+### Dataset
+
 [Dataset](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge)
 
 C.W. Chen, P. Lamere, M. Schedl, and H. Zamani. Recsys Challenge 2018: Automatic Music Playlist Continuation. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys ’18), 2018.
+
+#### Architecture
+
+![torianik music diagram](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music.drawio.png)
 
 ### Deploy
 
