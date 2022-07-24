@@ -9,7 +9,7 @@ AWS Glue PySpark ETL pipeline fully managed by terraform. Converst JSON dataset 
 
 ### Dataset
 
-[Dataset](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge)
+[Link to Aicrowd chanllenge](https://www.aicrowd.com/challenges/spotify-million-playlist-dataset-challenge)
 
 C.W. Chen, P. Lamere, M. Schedl, and H. Zamani. Recsys Challenge 2018: Automatic Music Playlist Continuation. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys ’18), 2018.
 
@@ -61,12 +61,26 @@ $ aws glue start-job-run \
 ```
 
 ### Development
-First thing first, follow [Deploy](#Deploy) section.
+First thing first, follow the [Deploy](#Deploy) section.
 ```bash
 cd dev
 ./build_image.sh
 ./run.sh
 ```
+
+### Additional resources
+
+#### Articles
+
+* [Develop and test AWS Glue locally with docker](https://aws.amazon.com/blogs/big-data/develop-and-test-aws-glue-version-3-0-jobs-locally-using-a-docker-container/)
+* [Optimize memory management in AWS Glue](https://aws.amazon.com/blogs/big-data/optimize-memory-management-in-aws-glue/). Used partitions grouping.
+* [Comprehensive intro into working with S3 Partitions](https://aws.amazon.com/blogs/big-data/work-with-partitioned-data-in-aws-glue/)
+* [(TO PROCESS)Optimizing spark with partitions](https://aws.amazon.com/blogs/big-data/best-practices-to-scale-apache-spark-jobs-and-partition-data-with-aws-glue/)
+* [(TO PROCESS)Optimizing spark with partitioning](https://aws.amazon.com/blogs/big-data/optimizing-spark-applications-with-workload-partitioning-in-aws-glue)
+
+#### Videos
+
+* [(TO PROCESS)Efficient partitiong in AWS Glue](https://www.youtube.com/watch?v=LdO-nr5TUL0&ab_channel=AWSTutorials)
 
 ### TODO
 * Enhance the developemnt flow. Add role assumption in the glue container.

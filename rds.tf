@@ -17,6 +17,7 @@ resource "aws_db_instance" "primary" {
   username            = var.db_user
   password            = var.db_password
   skip_final_snapshot = true
+  iops                = var.db_iops
   db_name             = var.db_name
   publicly_accessible = true
 

@@ -1,11 +1,11 @@
 locals {
-    ssm_prefix = "/${var.project_name}/${var.stage}/"
+  ssm_prefix = "/${var.project_name}/${var.stage}/"
 }
 
-resource "aws_ssm_parameter" "glue_connection_name" {
-  name  = "${local.ssm_prefix}glue_connection_name"
+resource "aws_ssm_parameter" "glue_connection" {
+  name  = "${local.ssm_prefix}glue_connection"
   type  = "String"
-  value = local.glue_connection_name
+  value = aws_glue_connection.primary.name
 }
 
 resource "aws_ssm_parameter" "catalog_database" {
@@ -20,26 +20,19 @@ resource "aws_ssm_parameter" "database_name" {
   value = var.db_name
 }
 
-resource "aws_ssm_parameter" "database_user" {
-  name  = "${local.ssm_prefix}database_user"
-  type  = "String"
-  value = var.db_user
+locals {
+  ssm_buckets = {
+    # SSM param name   # Bucket name
+    temp_bucket      = aws_s3_bucket.temp.id
+    sources_bucket   = aws_s3_bucket.sources.id
+    data_lake_bucket = aws_s3_bucket.data_lake.id
+  }
 }
 
-resource "aws_ssm_parameter" "database_password" {
-  name  = "${local.ssm_prefix}database_password"
-  type  = "SecureString"
-  value = var.db_password
-}
+resource "aws_ssm_parameter" "bucket_ssm" {
+  for_each = local.ssm_buckets
 
-resource "aws_ssm_parameter" "database_host" {
-  name  = "${local.ssm_prefix}database_host"
+  name  = "${local.ssm_prefix}${each.key}"
   type  = "String"
-  value = aws_db_instance.primary.address
-}
-
-resource "aws_ssm_parameter" "sources_bucket" {
-  name  = "${local.ssm_prefix}sources_bucket"
-  type  = "String"
-  value = aws_s3_bucket.sources.id
+  value = each.value
 }

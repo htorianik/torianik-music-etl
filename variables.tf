@@ -50,11 +50,17 @@ variable "db_name" {
 variable "db_instance" {
   type        = string
   description = "Instance type of RDS."
-  default     = "db.t3.micro"
+  default     = "db.t3.medium"
+}
+
+variable "db_iops" {
+  type        = number
+  description = "IOPS of the instance."
+  default     = 2000
 }
 
 variable "db_storage" {
   type        = string
   description = "Size of allocated storage for RDS in Gb."
-  default     = 20
+  default     = 100
 }
