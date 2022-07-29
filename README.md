@@ -4,6 +4,7 @@
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=Apache%20Airflow&logoColor=white)
 
 AWS Glue PySpark ETL pipeline fully managed by terraform. Converst JSON dataset to SQL database hosted on RDS instance.
 
@@ -15,7 +16,11 @@ C.W. Chen, P. Lamere, M. Schedl, and H. Zamani. Recsys Challenge 2018: Automatic
 
 #### Architecture
 
-![torianik music diagram](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music.drawio.png)
+#### AWS Diagram
+![torianik music AWS diagram](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music.drawio.png)
+
+#### Airflow
+![torianik music airflow DAG](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music-airflow.png)
 
 ### Deploy
 
@@ -75,12 +80,6 @@ cd dev
 * [Develop and test AWS Glue locally with docker](https://aws.amazon.com/blogs/big-data/develop-and-test-aws-glue-version-3-0-jobs-locally-using-a-docker-container/)
 * [Optimize memory management in AWS Glue](https://aws.amazon.com/blogs/big-data/optimize-memory-management-in-aws-glue/). Used partitions grouping.
 * [Comprehensive intro into working with S3 Partitions](https://aws.amazon.com/blogs/big-data/work-with-partitioned-data-in-aws-glue/)
-* [(TO PROCESS)Optimizing spark with partitions](https://aws.amazon.com/blogs/big-data/best-practices-to-scale-apache-spark-jobs-and-partition-data-with-aws-glue/)
-* [(TO PROCESS)Optimizing spark with partitioning](https://aws.amazon.com/blogs/big-data/optimizing-spark-applications-with-workload-partitioning-in-aws-glue)
-
-#### Videos
-
-* [(TO PROCESS)Efficient partitiong in AWS Glue](https://www.youtube.com/watch?v=LdO-nr5TUL0&ab_channel=AWSTutorials)
 
 #### Notes
 
