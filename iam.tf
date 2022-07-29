@@ -26,7 +26,8 @@ resource "aws_iam_role_policy" "data_lake" {
       {
         Action = [
           "s3:GetObject",
-          "s3:PutObject"
+          "s3:PutObject",
+          "s3:DeleteObject",
         ]
         Effect = "Allow"
         Resource = [

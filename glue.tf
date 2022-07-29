@@ -80,7 +80,7 @@ resource "aws_glue_job" "etl_job" {
   worker_type       = "G.1X"
 
   command {
-    script_location = "s3://${aws_s3_bucket.sources.bucket}/${each.value}"
+    script_location = "s3://${aws_s3_bucket.sources.bucket}/${aws_s3_object.source_file[each.value].key}"
     python_version  = 3
   }
 

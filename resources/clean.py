@@ -12,7 +12,6 @@ Version: 0.1.0
 """
 
 import sys
-import logging
 
 from ssm_cache import SSMParameter
 
@@ -32,16 +31,6 @@ TEMP_PATH = f"s3://{DATA_LAKE_BUCKET_SSM.value}/temp"
 OUTPUT_PATH = f"s3://{DATA_LAKE_BUCKET_SSM.value}/clean"
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-logger.info("Input Catalog database: %s", CATALOG_DATABASE_SSM.value)
-logger.info("Input Catalog table: %s", CATALOG_TABLE)
-logger.info("Temp S3 path: %s", TEMP_PATH)
-logger.info("Output s3 path: %s", OUTPUT_PATH)
-
-
 class CleanETL:
 
     def __init__(self):
@@ -53,7 +42,6 @@ class CleanETL:
         args = getResolvedOptions(sys.argv, params)
 
         self.dataset = args["dataset"]
-        logger.debug("Input dataset: %s", self.dataset)
 
         self.spark_context = SparkContext.getOrCreate()
         self.spark_context.setLogLevel("ERROR")
@@ -93,10 +81,10 @@ class CleanETL:
         tracks = ApplyMapping.apply(tracks_dirty, [
             ("pid", "int", "playlist_id", "int"),
             ("name", "string", "playlist_name", "string"),
-            ("track_uri", "string", "track_id", "string"),
-            ("track_name", "string", "track_name", "string"),
-            ("artist_uri", "string", "artist_id", "string"),
-            ("artist_name", "string", "artist_name", "string"),
+            ("`tracks.val.track_uri`", "string", "track_id", "string"),
+            ("`tracks.val.track_name`", "string", "track_name", "string"),
+            ("`tracks.val.artist_uri`", "string", "artist_id", "string"),
+            ("`tracks.val.artist_name`", "string", "artist_name", "string"),
             ("dataset", "string", "dataset", "string"),
         ])
 
@@ -104,19 +92,12 @@ class CleanETL:
 
     def load(self, dyf):
         """
-        Uploads DataFrame to S3 Bucket as few Apache parquet files.
+        Uploads DataFrame to S3 Bucket as few Apache parquet files. Overrides
+        the partition of the current dataset.
         :param dyf: DynamicFrame to write.
         :type dyf: DynamicFrame
         """
-        self.glue_context.write_dynamic_frame.from_options(
-            frame=dyf, 
-            connection_type="s3",
-            connection_options={
-                "path": OUTPUT_PATH,
-                "partitionKeys": ["dataset"],
-            },
-            format="parquet"
-        )
+        dyf.toDF().write.mode("overwrite").partitionBy("dataset").parquet(OUTPUT_PATH)
 
     def run(self):
         """

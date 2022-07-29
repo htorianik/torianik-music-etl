@@ -37,13 +37,12 @@ resource "aws_s3_bucket_public_access_block" "temp" {
 
 locals {
   sources = [
-    "etl_job.py",
-    "create_tables.sql",
     "clean.py",
     "load_artists.py",
     "load_edges.py",
     "load_playlists.py",
     "load_tracks.py",
+    "create_tables.sql",
   ]
 }
 

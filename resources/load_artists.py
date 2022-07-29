@@ -8,7 +8,6 @@ Additional parameters:
 --additional-python-modules=ssm-cache==2.10
 
 Author: Heorhii Torianyk <deadstonepro@gmail.com>
-Version: 0.0.4
 """
 
 import sys
@@ -33,14 +32,14 @@ CATALOG_TABLE = "clean"
 OUTPUT_RDS_TABLE_NAME = "artists"
 
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
 
 
-logger.debug("Input Catalog database: %s", CATALOG_DATABASE_SSM.value)
-logger.debug("Input Catalog table: %s", CATALOG_TABLE)
-logger.debug("Output Glue connection: %s", GLUE_CONNECTION_SSM.value)
-logger.debug("Output RDS database name: %s", DATABASE_NAME_SSM.value)
+# logger.debug("Input Catalog database: %s", CATALOG_DATABASE_SSM.value)
+# logger.debug("Input Catalog table: %s", CATALOG_TABLE)
+# logger.debug("Output Glue connection: %s", GLUE_CONNECTION_SSM.value)
+# logger.debug("Output RDS database name: %s", DATABASE_NAME_SSM.value)
 
 
 class LoadArtistsETL:
@@ -54,7 +53,7 @@ class LoadArtistsETL:
         args = getResolvedOptions(sys.argv, params)
 
         self.dataset = args["dataset"]
-        logger.debug("Input dataset: %s", self.dataset)
+        # logger.debug("Input dataset: %s", self.dataset)
 
         self.spark_context = SparkContext.getOrCreate()
         self.spark_context.setLogLevel("ERROR")

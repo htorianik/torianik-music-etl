@@ -82,6 +82,11 @@ cd dev
 
 * [(TO PROCESS)Efficient partitiong in AWS Glue](https://www.youtube.com/watch?v=LdO-nr5TUL0&ab_channel=AWSTutorials)
 
+#### Notes
+
+* [Tricky moment about relationalizing](https://stackoverflow.com/questions/69037911/aws-glue-cant-select-fields-after-unnest-or-relationalize)
+* Glue does not support overwriting S3 folders. Used `dyf.toDF().write.mode("overwrite")` instead.
+
 ### TODO
 * Enhance the developemnt flow. Add role assumption in the glue container.
 * Sync requirements between terraform and requirements.txt file.
