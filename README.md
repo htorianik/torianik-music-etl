@@ -63,10 +63,15 @@ aws s3 cp --recursive local/path/to/dataset/slices/ $( terraform output data_lak
 4. Wait until it's ready. If you did everything correct you should see DAG like this:
 ![torianik music airflow DAG](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music-airflow.png)
 
+5. Now you can use filled database. You can get it connection url with:
+```bash
+terraform output db_conn_url
+```
+
 
 ### Development
 
-Run ETL script locally:
+Run the ETL script locally:
 ```bash
 ./dev/run.sh <path to script relative to ./resources/> --dataset=mydatase [--any-other-kwarg]
 ```
