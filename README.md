@@ -16,61 +16,59 @@ C.W. Chen, P. Lamere, M. Schedl, and H. Zamani. Recsys Challenge 2018: Automatic
 
 #### Architecture
 
-#### AWS Diagram
 ![torianik music AWS diagram](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music.drawio.png)
-
-#### Airflow
-![torianik music airflow DAG](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music-airflow.png)
 
 ### Deploy
 
-1. Create `.tfvars`:
-```
-account_id=<your aws account id>
-project_name=<name of your porject>
-subnet_id=<subnet with NAT>
-secondary_subnet_id=<any other subnet in different AZ>
-security_group_id=<security group you want to create db instance and glue connection in>
-```
+1. Define variables in `.tfvars`:
+    * account_id - id of yout AWS account
+    * project_name - how you want to call your project (advanced, not supported by the etl)
+    * subnet_id - public subnet identitifier
+    * secondary_subnet_id - private subnet identifier. Must be in the different AZ then the subnet_id
+    * security_group_id - security group that allows inbound postgresql traffic.
+
 2. Configure AWS client with region and creds:
 ```bash
 $ export AWS_PROFILE=<my-aws-profile>
 $ export AWS_REGION=<my-region>
 ```
+
 3. Init and apply changes with terraform:
 ```bash
 $ terraform init -var-file .tfvars
 $ terraform apply -var-file .tfvars
 ```
 
-### Execution
-*Not tested, used UI insted.*
+### Usage
 
-*Naming is correct only if you did not override default variables.*
+1. Upload JSON slices to a data lake:
+```bash
+aws s3 cp --recursive local/path/to/dataset/slices/ $( terraform output data_lake )/raw/dataset=mydataset/
+```
 
+2. Set up Apache Airflow
+   * Start the Airflow.
+   * Install requirements from [torianik-music-airflow](https://github.com/htorianik/torianik-music-airflow).
+   * Uload dag [torianik-music-airflow](https://github.com/htorianik/torianik-music-airflow).
+   * Create PostgreSQL connection using creds from `.tfvars`.
+   * Set up AWS connection.
+
+3. Run apache Airflow. Choose option `Trigger DAG w/ config`. Put to the config:
+```json
+{
+    "dataset": "mydataset"
+}
 ```
-$ ./utils/unpack \
-    --prefix /raw \
-    --input <local/path/to/archive> \
-    --bucket <your-account-id>-torianik-music-dev-data-lake
-$ # Start a crawler
-$ aws glue start-crawler --name torianik-music-dev-crawler
-$ # Wait unitl crawler state is READY
-$ aws glue get-crawler --name torianik-music-dev-crawler --query "Crawler.State" --output text
-$ # Retrieve a name of the catalog table created
-$ aws glue get-tables --database-name torianik-music-dev-database --query "TableList[*].Name" --output text
-$ # Start a job
-$ aws glue start-job-run \
-    --job-name=torianik-music-dev-etl-job \
-    --arguments='--catalogTable=<table you received from the previous command>'
-```
+
+4. Wait until it's ready. If you did everything correct you should see DAG like this:
+![torianik music airflow DAG](https://github.com/htorianik/torianik-music-etl/blob/main/doc/torianik-music-airflow.png)
+
 
 ### Development
-First thing first, follow the [Deploy](#Deploy) section.
+
+Run ETL script locally:
 ```bash
-cd dev
-./build_image.sh
-./run.sh
+./dev/run.sh <path to script relative to ./resources/> --dataset=mydatase [--any-other-kwarg]
 ```
 
 ### Additional resources
@@ -85,9 +83,3 @@ cd dev
 
 * [Tricky moment about relationalizing](https://stackoverflow.com/questions/69037911/aws-glue-cant-select-fields-after-unnest-or-relationalize)
 * Glue does not support overwriting S3 folders. Used `dyf.toDF().write.mode("overwrite")` instead.
-
-### TODO
-* Enhance the developemnt flow. Add role assumption in the glue container.
-* Sync requirements between terraform and requirements.txt file.
-* Make the diagram prettier.
-* Currently us-east-1 region is hardcoded. Change it.

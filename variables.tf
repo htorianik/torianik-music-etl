@@ -64,3 +64,13 @@ variable "db_storage" {
   description = "Size of allocated storage for RDS in Gb."
   default     = 100
 }
+
+output "db_conn_url" {
+  description = "URL with postgreSQL connection to the target database. This format can be used with SQLAlchemy."
+  value       = "postgres://${var.db_user}:${var.db_password}@${aws_db_instance.primary.address}/${var.db_name}"
+}
+
+output "data_lake" {
+  description = "Uri poiting to data lake s3 bucket."
+  value       = "s3://${aws_s3_bucket.data_lake.id}"
+}

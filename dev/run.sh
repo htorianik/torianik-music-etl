@@ -1,9 +1,15 @@
 #!/bin/bash
 
+
+IMAGE_NAME=htorianik-music-glue-env
 WORKSPACE_LOCATION=/home/htorianik/personal/torianik-music-etl/resources
-SCRIPT_FILE_NAME=clean.py
 PROFILE_NAME=personal
-ARGS="--catalogTable=first_1"
+SCRIPT_FILE_NAME=$1
+ARGS=${@:2}
+
+if [ -n "$(docker images -q ${IMAGE_NAME})" ]; then
+    docker build -t $IMAGE_NAME
+fi
 
 docker run -it \
     -v ~/.aws:/home/glue_user/.aws \
@@ -14,4 +20,4 @@ docker run -it \
     --rm \
     --network host \
     --name glue_spark_submit \
-    htorianik-music-glue-env spark-submit /home/glue_user/workspace/$SCRIPT_FILE_NAME $ARGS
+    $IMAGE_NAME spark-submit /home/glue_user/workspace/$SCRIPT_FILE_NAME $ARGS
