@@ -1,9 +1,6 @@
 resource "aws_db_subnet_group" "database" {
   name = "${var.project_name}-${var.stage}-database-group"
-  subnet_ids = [
-    data.aws_subnet.primary.id,
-    data.aws_subnet.secondary.id
-  ]
+  subnet_ids = module.vpc.public_subnet_ids
 
   tags = {
     Name = "${var.project_name}-${var.stage}-database-group"
@@ -23,6 +20,6 @@ resource "aws_db_instance" "primary" {
 
   db_subnet_group_name = aws_db_subnet_group.database.id
   vpc_security_group_ids = [
-    var.security_group_id
+    module.vpc.postgresql_security_group_id
   ]
 }

@@ -23,3 +23,12 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 }
+
+module "vpc" {
+  source = "./modules/vpc"
+
+  project_name    = var.project_name
+  stage           = var.stage
+  vpc_id          = var.vpc_id
+  base_cidr_block = var.base_cidr_block
+}

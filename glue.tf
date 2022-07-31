@@ -13,12 +13,12 @@ resource "aws_glue_connection" "primary" {
   }
 
   physical_connection_requirements {
-    subnet_id = data.aws_subnet.primary.id
+    subnet_id = module.vpc.private_subnets["us-east-1a"].id
 
-    availability_zone = data.aws_subnet.primary.availability_zone
+    availability_zone = module.vpc.private_subnets["us-east-1a"].availability_zone
 
     security_group_id_list = [
-      var.security_group_id
+      module.vpc.glue_connection_security_group_id
     ]
   }
 }

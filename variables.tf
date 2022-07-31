@@ -15,19 +15,14 @@ variable "stage" {
   default     = "dev"
 }
 
-variable "subnet_id" {
+variable "vpc_id" {
   type        = string
-  description = "Private subnet to create RDS Instance, Glue Connection in. NAT is required."
+  description = "VPC to run the infrastructure in. DNS Hostnames enabled is required"
 }
 
-variable "secondary_subnet_id" {
+variable "base_cidr_block" {
   type        = string
-  description = "Subnet to create RDS Instance in. Required to be in other availability zone then the primary one."
-}
-
-variable "security_group_id" {
-  type        = string
-  description = "Security group to run RDS and Glue Connection in."
+  description = "CIDR block to put subnets to. At least 16 bits is required."
 }
 
 variable "db_user" {
