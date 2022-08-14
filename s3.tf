@@ -17,11 +17,20 @@ resource "aws_s3_bucket" "sources" {
   bucket = "${var.account_id}-${var.project_name}-${var.stage}-sources"
 }
 
-resource "aws_s3_bucket_public_access_block" "sources" {
-  bucket = aws_s3_bucket.data_lake.id
+resource "aws_s3_bucket_versioning" "sources" {
+  bucket = aws_s3_bucket.sources.bucket
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 
-  block_public_acls   = true
-  block_public_policy = true
+resource "aws_s3_bucket_public_access_block" "sources" {
+  bucket = aws_s3_bucket.sources.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket" "temp" {
@@ -43,6 +52,8 @@ locals {
     "load_playlists.py",
     "load_tracks.py",
     "create_tables.sql",
+    "airflow/requirements.txt",
+    "airflow/dags/torianik_music_etl.py",
   ]
 }
 

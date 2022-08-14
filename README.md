@@ -88,3 +88,7 @@ Run the ETL script locally:
 
 * [Tricky moment about relationalizing](https://stackoverflow.com/questions/69037911/aws-glue-cant-select-fields-after-unnest-or-relationalize)
 * Glue does not support overwriting S3 folders. Used `dyf.toDF().write.mode("overwrite")` instead.
+
+#### Tools
+
+* [Nice tool to debug the MWAA](https://github.com/awslabs/aws-support-tools/tree/master/MWAA)

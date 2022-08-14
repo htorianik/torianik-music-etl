@@ -27,3 +27,8 @@ output "glue_connection_security_group_id" {
     value = aws_security_group.glue_connection.id
     description = "Identifier of a security group that allows glue connection to reach the db instance."
 }
+
+output "internet_gateway_id" {
+    value = aws_internet_gateway.mod.id
+    description = "Identifier of the internet gateway used in created public subnets."
+}

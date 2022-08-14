@@ -1,5 +1,5 @@
 resource "aws_db_subnet_group" "database" {
-  name = "${var.project_name}-${var.stage}-database-group"
+  name       = "${var.project_name}-${var.stage}-database-group"
   subnet_ids = module.vpc.public_subnet_ids
 
   tags = {

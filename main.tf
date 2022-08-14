@@ -32,3 +32,21 @@ module "vpc" {
   vpc_id          = var.vpc_id
   base_cidr_block = var.base_cidr_block
 }
+
+/*
+module "airflow" {
+  source = "idealo/mwaa/aws"
+
+  create_networking_config = false
+  account_id               = data.aws_caller_identity.current.account_id
+  environment_name         = var.stage
+  internet_gateway_id      = module.vpc.internet_gateway_id
+  private_subnet_ids       = module.vpc.private_subnet_ids
+  region                   = "us-east-1"
+  vpc_id                   = var.vpc_id
+
+  source_bucket_arn    = aws_s3_bucket.sources.arn
+  dag_s3_path          = "airflow/dags/"
+  requirements_s3_path = "airflow/requirements.txt"
+}
+*/
